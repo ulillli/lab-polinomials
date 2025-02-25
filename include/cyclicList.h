@@ -15,7 +15,7 @@ struct cyclicList {
 		return first;
 	}
 	Node* HEAD() const {
-			return first;
+		return first;
 	}
 	cyclicList(int n = 0) {
 		if (n >= 0) {
@@ -161,7 +161,7 @@ struct cyclicList {
 			return prev->next;
 		}
 		first = new Node(first, value);
-		first->next= first;
+		first->next = first;
 		return first;
 	}
 	Node* insert(T data) {
@@ -200,7 +200,7 @@ struct cyclicList {
 			return first;
 		}
 	}
-	void print() {
+	void print() const {
 		if (first != nullptr) {
 			Node* tmpFirst = first;
 			first->value.print();

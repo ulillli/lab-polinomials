@@ -10,7 +10,7 @@ public:
 	int x;
 	int y;
 	int z;
-	Monom(double coef_=0, std::vector<int> powers={0,0,0}) {
+	Monom(double coef_ = 0, std::vector<int> powers = { 0,0,0 }) {
 		coef = coef_;
 		x = powers[0];
 		y = powers[1];
@@ -22,11 +22,11 @@ public:
 		y = other.y;
 		z = other.z;
 	}
-	bool operator==(const Monom& other) {
+	bool operator==(const Monom& other) const {
 		return ((this->x == other.x) && (this->y == other.y) && (this->z == other.z));
 	}
 	bool operator!=(const Monom& other) {
-		return !(*this==other);
+		return !(*this == other);
 	}
 	bool operator>(const Monom& other) {
 		if (this->x > other.x) return 1;
@@ -42,11 +42,25 @@ public:
 		}
 		return 0;
 	}
-	bool operator<(const Monom& other) { 
-		return ((*this!=other) && !(*this>other));
+	bool operator<(const Monom& other) {
+		return ((*this != other) && !(*this > other));
 	}
 	std::vector<int> getPowers() {
 		return { x,y,z };
+	}
+	Monom& operator=(const Monom& other) {
+		coef = other.coef;
+		x = other.x;
+		y = other.y;
+		z = other.z;
+		return *this;
+	}
+	Monom& operator+=(const Monom& other) {
+		coef += other.coef;
+		x = other.x;
+		y = other.y;
+		z = other.z;
+		return *this;
 	}
 	Monom& operator-() {
 		coef = -coef;
@@ -94,7 +108,24 @@ public:
 		return *this;
 	}
 	Polynom& operator+=(const Monom& m) {
-		data.insert(m);
+		cyclicList<Monom>::Node* curr1 = this->data.HEAD();
+		if (curr1 != nullptr) {
+			bool flag = 0;
+			if (m == curr1->value) {
+				curr1->value += m;
+				flag = 1;
+			}
+			curr1 = curr1->next;
+			while (curr1 != this->data.HEAD()) {
+				if (m == curr1->value) {
+					curr1->value += m;
+					flag = 1;
+				}
+				curr1 = curr1->next;
+			}
+			if (!flag) data.insert(m);
+		}
+		else data.insert(m);
 		return *this;
 	}
 	Polynom operator+(const Monom& m) {
@@ -102,34 +133,37 @@ public:
 		P += m;
 		return P;
 	}
-	void change(cyclicList<Monom>::Node ** curr1, cyclicList<Monom>::Node** curr2, cyclicList<Monom>::Node** curr3, Polynom * P) {
+	int change(cyclicList<Monom>::Node** curr1, cyclicList<Monom>::Node** curr2, cyclicList<Monom>::Node** curr3, Polynom* P) {
 		Monom first = (*curr1)->value, second = (*curr2)->value;
 		if (first > second) {
 			*curr3 = P->data.insert_after(first, *curr3);
 			*curr1 = (*curr1)->next;
-			
+			return 0; //сдвинулся первый
+
 		}
 		else {
 			if ((first == second) && (first.coef + second.coef != 0)) {
 				*curr3 = P->data.insert_after(Monom(first.coef + second.coef, first.getPowers()), *curr3);
 				*curr1 = (*curr1)->next;
 				*curr2 = (*curr2)->next;
+				return 1; //сдвинулись оба
 			}
 			else {
 				*curr3 = P->data.insert_after(second, *curr3);
 				*curr2 = (*curr2)->next;
+				return 2; //сдвинулся второй
 			}
 		}
 	}
 	Polynom& operator+=(const Polynom& other) {
 		cyclicList<Monom>::Node* curr1 = this->data.HEAD();
 		cyclicList<Monom>::Node* curr2 = other.data.HEAD();
-		if ((curr1 != nullptr)&&(curr2!=nullptr)) {
+		if ((curr1 != nullptr) && (curr2 != nullptr)) {
 			Polynom P;
 			cyclicList<Monom>::Node* curr3 = P.data.HEAD();
-			while (curr1 == this->data.HEAD() || curr2 == other.data.HEAD()) { //сдвигаем с first оба укзателя 
-				change(&curr1, &curr2, &curr3, &P);
-			}
+			int flag = change(&curr1, &curr2, &curr3, &P);
+			if (flag == 0) while (change(&curr1, &curr2, &curr3, &P) == 0) {}
+			if (flag == 2) while (change(&curr1, &curr2, &curr3, &P) == 2) {}
 			while (curr1 != this->data.HEAD() && curr2 != other.data.HEAD()) { //пока какой-то не кончился 
 				change(&curr1, &curr2, &curr3, &P);
 			}
@@ -157,13 +191,13 @@ public:
 		P += other;
 		return P;
 	}
-	Polynom & operator-() { //унарный минус к полиному
-		cyclicList<Monom>::Node* curr= this->data.HEAD();
+	Polynom& operator-() { //унарный минус к полиному
+		cyclicList<Monom>::Node* curr = this->data.HEAD();
 		curr->value = -(curr->value);
 		curr = curr->next;
-		while (curr!= data.HEAD()) {
+		while (curr != data.HEAD()) {
 			curr->value = -(curr->value);
-			curr=curr->next;
+			curr = curr->next;
 		}return *this;
 	}
 	Polynom operator-(const Polynom& other) {
@@ -174,7 +208,7 @@ public:
 	}
 	Polynom& operator*=(double c) {
 		cyclicList<Monom>::Node* curr = this->data.HEAD();
-		curr->value*=c;
+		curr->value *= c;
 		curr = curr->next;
 		while (curr != data.HEAD()) {
 			curr->value *= c;
@@ -182,7 +216,7 @@ public:
 		}
 		return *this;
 	}
-	Polynom& operator*=(const Monom& M) {                                       
+	Polynom& operator*=(const Monom& M) {
 		cyclicList<Monom>::Node* curr = this->data.HEAD();
 		curr->value *= M;
 		curr = curr->next;
@@ -190,34 +224,33 @@ public:
 			curr->value *= M;
 			curr = curr->next;
 		}
+		//print();
 		return *this;
 	}
-	Polynom operator*(const Monom& M) const {                                          
+	Polynom operator*(const Monom& M) const {
 		Polynom P(*this);
 		P *= M;
 		return P;
 	}
 	Polynom& operator*=(const Polynom& other) {
-		this->print();
 		if (this->data.HEAD() != nullptr && other.data.HEAD() != nullptr) {
 			Polynom P;
 			cyclicList<Monom>::Node* curr1 = this->data.HEAD();
-			
+
 			Monom m1(curr1->value);
 			P += other * m1;
 			curr1 = curr1->next;
-			P.print();
 			while (curr1 != this->data.HEAD()) {
 				Monom m1(curr1->value);
 				P += other * m1;
+
 				curr1 = curr1->next;
-				P.print();
 			}
 			*this = P;
 		}
 		return *this;
 	}
-	void print() {
+	void print() const {
 		data.print();
 	}
 };
