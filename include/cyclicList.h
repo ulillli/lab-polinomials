@@ -213,15 +213,18 @@ struct cyclicList {
 		}
 		else throw "list is empty\n";
 	}
-	bool operator==(const cyclicList<T>& other) {
+	bool operator==(const cyclicList<T>& other) const{
 		if (this->size() != other.size()) {
 			return 0;
 		}
 		if (first != nullptr) {
-			Node* curr1 = first->next;
-			Node* curr2 = other.first->next;
+			Node* curr1 = first;
+			Node* curr2 = other.first;
+			if ((curr1->value != curr2->value) || (curr1->value.coef != curr2->value.coef)) return 0;
+			curr1 = curr1->next;
+			curr2 = curr2->next;
 			while (curr1 != first) {
-				if (curr1 != curr2) {
+				if ((curr1->value != curr2->value)||(curr1->value.coef!=curr2->value.coef)) {
 					return 0;
 				}
 				curr1 = curr1->next;

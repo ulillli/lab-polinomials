@@ -15,12 +15,22 @@ public:
 		x = powers[0];
 		y = powers[1];
 		z = powers[2];
+		if (coef == 0) {
+			x = 0;
+			y = 0;
+			z = 0;
+		}
 	}
 	Monom(const Monom& other) {
 		coef = other.coef;
 		x = other.x;
 		y = other.y;
 		z = other.z;
+		if (coef == 0) {
+			x = 0;
+			y = 0;
+			z = 0;
+		}
 	}
 	bool operator==(const Monom& other) const {
 		return ((this->x == other.x) && (this->y == other.y) && (this->z == other.z));
@@ -107,6 +117,9 @@ public:
 		}
 		return *this;
 	}
+	bool operator==(const Polynom & other) const{
+		return (this->data == other.data);
+	}
 	Polynom& operator+=(const Monom& m) {
 		cyclicList<Monom>::Node* curr1 = this->data.HEAD();
 		if (curr1 != nullptr) {
@@ -191,14 +204,16 @@ public:
 		P += other;
 		return P;
 	}
-	Polynom& operator-() { //унарный минус к полиному
-		cyclicList<Monom>::Node* curr = this->data.HEAD();
+	Polynom operator-() { //унарный минус к полиному
+		Polynom P(*this);
+		cyclicList<Monom>::Node* curr = P.data.HEAD();
 		curr->value = -(curr->value);
 		curr = curr->next;
-		while (curr != data.HEAD()) {
+		while (curr != P.data.HEAD()) {
 			curr->value = -(curr->value);
 			curr = curr->next;
-		}return *this;
+		}
+		return P;
 	}
 	Polynom operator-(const Polynom& other) {
 		Polynom P(*this);
