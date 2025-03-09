@@ -1,5 +1,5 @@
 #include "polynoms.h"
-#include "translator.h"
+#include "translatorP.h"
 #include <gtest.h>
 
 TEST(Polynom, can_create_polynom_without_monoms)

@@ -72,9 +72,10 @@ public:
 		z = other.z;
 		return *this;
 	}
-	Monom& operator-() {
-		coef = -coef;
-		return *this;
+	Monom operator-() {
+		Monom m(*this);
+		m.coef = -coef;
+		return m;
 	}
 	Monom operator*=(double c) {
 		coef *= c;

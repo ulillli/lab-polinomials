@@ -1,5 +1,5 @@
 #include "polynoms.h"
-#include "translator.h"
+#include "translatorP.h"
 #include <string>
 int main() {
 	try {
@@ -17,6 +17,7 @@ int main() {
 		std::string s1, s2;
 		double c;
 		Polynom P1, P2;
+
 		switch (i) {
 		case 1:
 			std::cout << "Input the first polynom\n";
